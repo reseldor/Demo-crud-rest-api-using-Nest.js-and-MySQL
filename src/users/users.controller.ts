@@ -16,7 +16,6 @@ import {
 import { GenericResponseDto } from './dto/generic-response.dto';
 import { CreateUserDto, UpdateUserDto } from './dto/index';
 import { UserResponseDto } from './dto/user-response.dto';
-import { User } from './user.entity';
 import { UsersService } from './users.service';
 
 @Controller('Users')
@@ -44,19 +43,20 @@ export class UsersController {
   @Post()
   async create(@Body() user: CreateUserDto): Promise<{
     success: boolean,
-    result?: number,
+    result?: {
+      id: number,
+    },
   }> {
-    const result = await this.usersService.create(user);
-    if (result) {
-      return {
-        success: true,
-        result: result.id,
-      };
-    } else {
+    const newUser = await this.usersService.create(user);
+    if (!newUser) {
       return {
         success: false,
       };
     }
+    return {
+      success: true,
+      result: { id: newUser.id },
+    };
   }
 
   @Patch(':id')
@@ -66,6 +66,11 @@ export class UsersController {
     @Body() user: UpdateUserDto,
   ): Promise<GenericResponseDto<UserResponseDto>> {
     const updatedUser = await this.usersService.update(id, user);
+    if (!updatedUser) {
+      return {
+        success: false,
+      };
+    }
     return {
       success: true,
       result: updatedUser,
@@ -75,9 +80,14 @@ export class UsersController {
   @Delete(':id')
   async delete(@Param('id') id: number): Promise<GenericResponseDto<UserResponseDto>> {
     const deletedUser = await this.usersService.delete(id);
+    if (!deletedUser) {
+      return {
+        success: false,
+      };
+    }
     return {
       success: true,
-      result: deletedUser ? deletedUser[0] : undefined,
+      result: deletedUser,
     };
   }
 

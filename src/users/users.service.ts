@@ -23,17 +23,28 @@ export class UsersService {
       });
   }
 
-  async create(User: CreateUserDto): Promise<User> {
-    const createdUser = this.UserRepository.create(User);
+  async create(user: CreateUserDto): Promise<User | undefined> {
+    let existName = await this.UserRepository.findOneBy({
+      full_name: user.full_name,
+    });
+    if (existName) {
+      return undefined;
+    }
+    const createdUser = this.UserRepository.create(user);
     return await this.UserRepository.save(createdUser);
   }
 
-  async update(id: number, User: UpdateUserDto):Promise<UserResponseDto> {
+  async update(id: number, user: UpdateUserDto):Promise<UserResponseDto | undefined> {
     let foundUser = await this.UserRepository.findOneBy({
       id: id,
     });
-
-    foundUser = { ...foundUser, ...User, updated_at: new Date() };
+    let existName = await this.UserRepository.findOneBy({
+      full_name: user.full_name,
+    });
+    if (existName) {
+      return undefined;
+    }
+    foundUser = { ...foundUser, ...user, updated_at: new Date() };
     return await this.UserRepository.save(foundUser);
   }
 
