@@ -13,7 +13,9 @@ export class UsersService {
 
   async getAll(role?: string): Promise<UserResponseDto[]> {
     let users =  await this.UserRepository.find();
-    users = role ? users.filter(user => user.role === role) : users;
+    if (role) {
+      users = role ? users.filter(user => user.role === role) : users;
+    }
     return users;
   }
 
