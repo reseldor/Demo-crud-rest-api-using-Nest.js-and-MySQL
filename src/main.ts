@@ -16,12 +16,12 @@ async function bootstrap() {
 
   // OpenAPI Specification
   const config = new DocumentBuilder()
-    .setTitle('Products Demo API')
+    .setTitle('Users Demo API')
     .setDescription(
-      'A REST API using Nestjs to create CRUD operations on products table',
+      'A REST API using Nestjs to create CRUD operations on users table',
     )
     .setVersion('1.0')
-    .addTag('products')
+    .addTag('users')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
