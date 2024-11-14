@@ -12,14 +12,14 @@ import { ApiProperty } from '@nestjs/swagger';
 export class CreateUserDto {
   @IsNotEmpty()
   @IsString({ message: 'full_name be a text' })
-  @MaxLength(255)
+  @MaxLength(100)
   @MinLength(3)
   @ApiProperty()
   full_name: string;
 
   @IsNotEmpty()
   @IsString({ message: 'role must be a text' })
-  @MaxLength(255)
+  @MaxLength(50)
   @MinLength(3)
   @ApiProperty()
   role: string;
