@@ -18,34 +18,58 @@ import { CreateUserDto, UpdateUserDto } from './dto/index';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UsersService } from './users.service';
 
-@Controller('Users')
+@Controller('users')
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
-  @Get()
-  async getAll(@Query('role') role?: string):  Promise<GenericResponseDto<{ users: UserResponseDto[] }>> {
-    const users = await this.usersService.getAll(role);
+  @Get('get')
+  async getAll(
+    @Query('role') role?: string,
+    @Query('full_name') fullName?: string,
+    @Query('efficiency') efficiency?: number,
+  ): Promise<GenericResponseDto<{ users: UserResponseDto[] }>> {
+    const users = await this.usersService.getAll(role, fullName, efficiency);
+    if (!users) {
+      throw new HttpException(
+        {
+          success: false,
+          result: { error: 'users not found' },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
     return {
       success: true,
       result: { users },
     };
   }
 
-  @Get(':id')
-  async getOne(@Param('id', ParseIntPipe) id: number): Promise<GenericResponseDto<{ users: UserResponseDto[] }>> {
+  @Get('/get/:id')
+  async getOne(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<GenericResponseDto<{ users: UserResponseDto[] }>> {
     const user = await this.usersService.getOneById(id);
+    if (!user) {
+      throw new HttpException(
+        {
+          success: false,
+          result: { error: 'users not found' },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
     return {
       success: true,
       result: { users: user ? [user] : [] },
     };
   }
 
-  @Post()
+  @Post('create')
   async create(@Body() user: CreateUserDto): Promise<{
-    success: boolean,
+    success: boolean;
     result?: {
-      id: number,
-    },
+      id: number;
+    };
   }> {
     const newUser = await this.usersService.create(user);
     if (!newUser) {
@@ -59,7 +83,7 @@ export class UsersController {
     };
   }
 
-  @Patch(':id')
+  @Patch('/update/:id')
   @UsePipes(ValidationPipe)
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -77,8 +101,10 @@ export class UsersController {
     };
   }
 
-  @Delete(':id')
-  async delete(@Param('id') id: number): Promise<GenericResponseDto<UserResponseDto>> {
+  @Delete('/delete/:id')
+  async delete(
+    @Param('id') id: number,
+  ): Promise<GenericResponseDto<UserResponseDto>> {
     const deletedUser = await this.usersService.delete(id);
     if (!deletedUser) {
       return {
@@ -91,7 +117,7 @@ export class UsersController {
     };
   }
 
-  @Delete()
+  @Delete('delete')
   async deleteAllUsers(): Promise<GenericResponseDto<void>> {
     await this.usersService.delete();
     return {
@@ -99,4 +125,3 @@ export class UsersController {
     };
   }
 }
-
