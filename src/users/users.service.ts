@@ -57,6 +57,15 @@ export class UsersService {
     let foundUser = await this.UserRepository.findOneBy({
       id: id,
     });
+    if (foundUser) {
+      throw new HttpException(
+        {
+          success: false,
+          result: { error: 'user with this id not found' },
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
     const existName = await this.UserRepository.findOneBy({
       full_name: user.full_name,
     });
